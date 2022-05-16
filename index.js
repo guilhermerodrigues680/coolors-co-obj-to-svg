@@ -83,34 +83,52 @@ function convObjToSvg2(objStr) {
   const circleRadius = 30;
   const circleDiameter = circleRadius * 2;
   let colorCount = 0;
+  const currentCoords = {
+    currentX: 0,
+    currentY: 0,
+  };
+  const circlesPerRow = 3;
+  const marginTop = 6;
+  const fontSizeTexts = 6;
+  const marginTop1 = 2;
   for (const colorName in coolorscoObj) {
     if (Object.hasOwnProperty.call(coolorscoObj, colorName)) {
       const colorHex = "#" + coolorscoObj[colorName];
 
+      if (colorCount != 0) {
+        currentCoords.currentX += circleDiameter;
+      }
+
+      if (colorCount != 0 && colorCount % circlesPerRow === 0) {
+        // volta o x
+        currentCoords.currentX = 0;
+        // o y deve ser acrecentado a
+        // altura do circulo + altura dos textos
+        currentCoords.currentY += circleDiameter + marginTop + fontSizeTexts + marginTop1 + fontSizeTexts;
+      }
+
       // ex: <circle cx="28.5" cy="28.5" r="28.5" fill="#C4C4C4" />
       const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       circle.setAttribute("fill", colorHex);
-      circle.setAttribute("cx", colorCount * circleDiameter + circleRadius);
-      circle.setAttribute("cy", 0 + circleRadius);
+      circle.setAttribute("cx", currentCoords.currentX + circleRadius);
+      circle.setAttribute("cy", currentCoords.currentY + circleRadius);
       circle.setAttribute("r", circleRadius);
 
       // <text x="10" y="235" font-family="Arial" font-size="6" alignment-baseline="middle">str</text>
       const textColorName = document.createElementNS("http://www.w3.org/2000/svg", "text");
       const textColorHex = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
-      const marginTop = 6;
-      const fontSize0 = 6;
-      const marginTop1 = 2;
-      textColorName.setAttribute("x", colorCount * circleDiameter);
-      textColorName.setAttribute("y", 0 + circleDiameter + marginTop);
+      textColorName.setAttribute("x", currentCoords.currentX);
+      textColorName.setAttribute("y", currentCoords.currentY + circleDiameter + marginTop);
       textColorName.setAttribute("font-family", "Arial");
-      textColorName.setAttribute("font-size", fontSize0);
+      textColorName.setAttribute("font-size", fontSizeTexts);
       textColorName.setAttribute("alignment-baseline", "hanging");
       textColorName.setAttribute("fill", "#000000");
-      textColorHex.setAttribute("x", colorCount * circleDiameter);
-      textColorHex.setAttribute("y", 0 + circleDiameter + marginTop + fontSize0 + marginTop1);
+
+      textColorHex.setAttribute("x", currentCoords.currentX);
+      textColorHex.setAttribute("y", currentCoords.currentY + circleDiameter + marginTop + fontSizeTexts + marginTop1);
       textColorHex.setAttribute("font-family", "Arial");
-      textColorHex.setAttribute("font-size", 6);
+      textColorHex.setAttribute("font-size", fontSizeTexts);
       textColorHex.setAttribute("alignment-baseline", "hanging");
       textColorHex.setAttribute("fill", "#586782");
 
@@ -124,8 +142,8 @@ function convObjToSvg2(objStr) {
     }
   }
 
-  const svgWidth = colorCount * circleDiameter;
-  const svgHeight = 250;
+  const svgWidth = circlesPerRow * circleDiameter;
+  const svgHeight = currentCoords.currentY + circleDiameter + marginTop + fontSizeTexts + marginTop1 + fontSizeTexts;
 
   svg.setAttribute("width", svgWidth);
   svg.setAttribute("height", svgHeight);
@@ -185,3 +203,17 @@ btnDownloadSvgEl.addEventListener("click", () => {
     timer: 1500,
   });
 });
+
+// debug
+convObjToSvg2(`{
+  "Old Mauve": "6a294d",
+  "Pink Pantone": "cf5597",
+  "Myrtle Green": "337b77",
+  "Dodger Blue": "4297fa",
+  "Cyber Yellow": "fdce02",
+  "Rich Black FOGRA 29": "091221",
+  "Black": "000000",
+  "Gray Web": "808080",
+  "Cultured": "f1f1f1",
+  "White": "ffffff"
+}`);
