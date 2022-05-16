@@ -148,7 +148,7 @@ function convObjToSvg2(objStr) {
     }
   }
 
-  const svgWidth = circlesPerRow * circleDiameter * margin.x;
+  const svgWidth = circlesPerRow * (circleDiameter + margin.x);
   const svgHeight = currentCoords.currentY + circleDiameter + marginTop + fontSizeTexts + marginTop1 + fontSizeTexts;
 
   svg.setAttribute("width", svgWidth);
