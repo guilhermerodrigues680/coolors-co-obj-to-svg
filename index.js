@@ -1,4 +1,27 @@
-const coolorscoObjStr = `{"Old Mauve":"6a294d","Pink Pantone":"cf5597","Myrtle Green":"337b77","Dodger Blue":"4297fa","Cyber Yellow":"fdce02","Rich Black FOGRA 29":"091221","Black":"000000","Gray Web":"808080","Cultured":"f1f1f1","White":"ffffff"}`;
+/*
+  Object Example:
+  {
+    "Old Mauve": "6a294d",
+    "Pink Pantone": "cf5597",
+    "Myrtle Green": "337b77",
+    "Dodger Blue": "4297fa",
+    "Cyber Yellow": "fdce02",
+    "Rich Black FOGRA 29": "091221",
+    "Black": "000000",
+    "Gray Web": "808080",
+    "Cultured": "f1f1f1",
+    "White": "ffffff"
+  }
+*/
+
+/** @type {HTMLTextAreaElement} */
+const textareaObjEl = document.querySelector("#textarea-obj");
+/** @type {HTMLTextAreaElement} */
+const textareaSvgEl = document.querySelector("#textarea-svg");
+/** @type {HTMLDivElement} */
+const previewOutputSvgEl = document.querySelector("#preview-output-svg");
+/** @type {HTMLButtonElement} */
+const btnDownloadSvgEl = document.querySelector("#btn-download-svg");
 
 // TODO Gerar url
 // https://coolors.co/6a294d-cf5597-337b77-4297fa-fdce02-091221-000000-808080-f1f1f1-ffffff
@@ -53,6 +76,7 @@ function convObjToSvg2(objStr) {
   const coolorscoObj = JSON.parse(objStr);
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
   svg.appendChild(document.createComment("Tranformado por ????"));
 
@@ -112,10 +136,52 @@ function convObjToSvg2(objStr) {
   //<text x="10" y="235" font-family="Arial" font-size="6" alignment-baseline="middle">Exported from Coolors.co</text>
   //<text x="490" y="235" font-family="Arial" font-size="6" alignment-baseline="middle" text-anchor="end">https://coolors.co/6a294d-cf5597-337b77-4297fa-fdce02-091221-000000-808080-f1f1f1-ffffff</text>
 
-  // Imprime na tela
-  console.debug("svg", svg.outerHTML);
-  document.body.appendChild(svg);
+  // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+  previewOutputSvgEl.textContent = "";
+  previewOutputSvgEl.appendChild(svg);
+  textareaSvgEl.value = svg.outerHTML;
 }
 
-// convObjToSvg(coolorscoObjStr);
-convObjToSvg2(coolorscoObjStr);
+const clipboardSvg = new ClipboardJS("#btn-copy-to-clipboard", {
+  target: (/*trigger*/) => textareaSvgEl,
+});
+
+clipboardSvg.on("success", (e) => {
+  Swal.fire({
+    icon: "success",
+    title: "SVG Copiado!",
+    showConfirmButton: false,
+    timer: 1500,
+  });
+  e.clearSelection();
+});
+
+clipboardSvg.on("error", (e) => {
+  Swal.fire({
+    icon: "error",
+    title: "Erro ao copiar svg",
+  });
+  console.error("clipboardSvg error: ", e);
+});
+
+textareaObjEl.addEventListener("change", () => {
+  convObjToSvg2(textareaObjEl.value);
+});
+
+textareaObjEl.addEventListener("paste", (event) => {
+  const paste = (event.clipboardData || window.clipboardData).getData("text");
+  convObjToSvg2(paste);
+});
+
+btnDownloadSvgEl.addEventListener("click", () => {
+  // const docInfo = '<?xml version="1.0" encoding="utf-8"?>\n';
+  // const blob = new Blob([docInfo + textareaSvgEl.value], { type: "image/svg+xml" });
+  const blob = new Blob([textareaSvgEl.value], { type: "image/svg+xml" });
+  saveAs(blob, "color-pallete.svg");
+  Swal.fire({
+    icon: "success",
+    title: "Download iniciado!",
+    showConfirmButton: false,
+    timer: 1500,
+  });
+});
