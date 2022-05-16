@@ -23,6 +23,8 @@ const previewOutputSvgEl = document.querySelector("#preview-output-svg");
 /** @type {HTMLButtonElement} */
 const btnDownloadSvgEl = document.querySelector("#btn-download-svg");
 
+let v;
+
 // TODO Gerar url
 // https://coolors.co/6a294d-cf5597-337b77-4297fa-fdce02-091221-000000-808080-f1f1f1-ffffff
 
@@ -161,7 +163,19 @@ function convObjToSvg2(objStr) {
   // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
   previewOutputSvgEl.textContent = "";
   previewOutputSvgEl.appendChild(svg);
-  textareaSvgEl.value = svg.outerHTML;
+  const svgText = svg.outerHTML;
+  textareaSvgEl.value = svgText;
+
+  const canvas = document.querySelector("#canvas-svg");
+  const ctx = canvas.getContext("2d");
+
+  if (v) {
+    v.stop();
+  }
+
+  v = canvg.Canvg.fromString(ctx, svgText);
+  // Start SVG rendering with animations and mouse handling.
+  v.start();
 }
 
 const clipboardSvg = new ClipboardJS("#btn-copy-to-clipboard", {
@@ -207,6 +221,13 @@ btnDownloadSvgEl.addEventListener("click", () => {
     timer: 1500,
   });
 });
+
+// window.onload = () => {
+// };
+window.onbeforeunload = () => {
+  // TODO: Ajustar isso, operado "?"
+  v?.stop();
+};
 
 // debug
 convObjToSvg2(`{
