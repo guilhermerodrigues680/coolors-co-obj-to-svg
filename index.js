@@ -88,15 +88,19 @@ function convObjToSvg2(objStr) {
     currentY: 0,
   };
   const circlesPerRow = 3;
-  const marginTop = 6;
-  const fontSizeTexts = 6;
-  const marginTop1 = 2;
+  const margin = {
+    x: 48,
+    y: 16,
+  };
+  const marginTop = 8;
+  const fontSizeTexts = 14;
+  const marginTop1 = 4;
   for (const colorName in coolorscoObj) {
     if (Object.hasOwnProperty.call(coolorscoObj, colorName)) {
       const colorHex = "#" + coolorscoObj[colorName];
 
       if (colorCount != 0) {
-        currentCoords.currentX += circleDiameter;
+        currentCoords.currentX += circleDiameter + margin.x;
       }
 
       if (colorCount != 0 && colorCount % circlesPerRow === 0) {
@@ -104,7 +108,7 @@ function convObjToSvg2(objStr) {
         currentCoords.currentX = 0;
         // o y deve ser acrecentado a
         // altura do circulo + altura dos textos
-        currentCoords.currentY += circleDiameter + marginTop + fontSizeTexts + marginTop1 + fontSizeTexts;
+        currentCoords.currentY += circleDiameter + margin.y + marginTop + fontSizeTexts + marginTop1 + fontSizeTexts;
       }
 
       // ex: <circle cx="28.5" cy="28.5" r="28.5" fill="#C4C4C4" />
@@ -127,7 +131,7 @@ function convObjToSvg2(objStr) {
 
       textColorHex.setAttribute("x", currentCoords.currentX);
       textColorHex.setAttribute("y", currentCoords.currentY + circleDiameter + marginTop + fontSizeTexts + marginTop1);
-      textColorHex.setAttribute("font-family", "Arial");
+      textColorHex.setAttribute("font-family", "monospace");
       textColorHex.setAttribute("font-size", fontSizeTexts);
       textColorHex.setAttribute("alignment-baseline", "hanging");
       textColorHex.setAttribute("fill", "#586782");
@@ -142,7 +146,7 @@ function convObjToSvg2(objStr) {
     }
   }
 
-  const svgWidth = circlesPerRow * circleDiameter;
+  const svgWidth = circlesPerRow * circleDiameter * margin.x;
   const svgHeight = currentCoords.currentY + circleDiameter + marginTop + fontSizeTexts + marginTop1 + fontSizeTexts;
 
   svg.setAttribute("width", svgWidth);
