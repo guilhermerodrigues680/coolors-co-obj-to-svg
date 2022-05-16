@@ -49,4 +49,73 @@ function convObjToSvg(objStr) {
   document.body.appendChild(svg);
 }
 
-convObjToSvg(coolorscoObjStr);
+function convObjToSvg2(objStr) {
+  const coolorscoObj = JSON.parse(objStr);
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+  svg.appendChild(document.createComment("Tranformado por ????"));
+
+  const circleRadius = 30;
+  const circleDiameter = circleRadius * 2;
+  let colorCount = 0;
+  for (const colorName in coolorscoObj) {
+    if (Object.hasOwnProperty.call(coolorscoObj, colorName)) {
+      const colorHex = "#" + coolorscoObj[colorName];
+
+      // ex: <circle cx="28.5" cy="28.5" r="28.5" fill="#C4C4C4" />
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("fill", colorHex);
+      circle.setAttribute("cx", colorCount * circleDiameter + circleRadius);
+      circle.setAttribute("cy", 0 + circleRadius);
+      circle.setAttribute("r", circleRadius);
+
+      // <text x="10" y="235" font-family="Arial" font-size="6" alignment-baseline="middle">str</text>
+      const textColorName = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      const textColorHex = document.createElementNS("http://www.w3.org/2000/svg", "text");
+
+      const marginTop = 6;
+      const fontSize0 = 6;
+      const marginTop1 = 2;
+      textColorName.setAttribute("x", colorCount * circleDiameter);
+      textColorName.setAttribute("y", 0 + circleDiameter + marginTop);
+      textColorName.setAttribute("font-family", "Arial");
+      textColorName.setAttribute("font-size", fontSize0);
+      textColorName.setAttribute("alignment-baseline", "hanging");
+      textColorName.setAttribute("fill", "#000000");
+      textColorHex.setAttribute("x", colorCount * circleDiameter);
+      textColorHex.setAttribute("y", 0 + circleDiameter + marginTop + fontSize0 + marginTop1);
+      textColorHex.setAttribute("font-family", "Arial");
+      textColorHex.setAttribute("font-size", 6);
+      textColorHex.setAttribute("alignment-baseline", "hanging");
+      textColorHex.setAttribute("fill", "#586782");
+
+      textColorName.innerHTML = colorName;
+      textColorHex.innerHTML = `HEX: ${colorHex}`;
+
+      svg.appendChild(circle);
+      svg.appendChild(textColorName);
+      svg.appendChild(textColorHex);
+      colorCount++;
+    }
+  }
+
+  const svgWidth = colorCount * circleDiameter;
+  const svgHeight = 250;
+
+  svg.setAttribute("width", svgWidth);
+  svg.setAttribute("height", svgHeight);
+  svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
+
+  // <!-- Exported from Coolors.co - https://coolors.co/6a294d-cf5597-337b77-4297fa-fdce02-091221-000000-808080-f1f1f1-ffffff -->
+
+  //<text x="10" y="235" font-family="Arial" font-size="6" alignment-baseline="middle">Exported from Coolors.co</text>
+  //<text x="490" y="235" font-family="Arial" font-size="6" alignment-baseline="middle" text-anchor="end">https://coolors.co/6a294d-cf5597-337b77-4297fa-fdce02-091221-000000-808080-f1f1f1-ffffff</text>
+
+  // Imprime na tela
+  console.debug("svg", svg.outerHTML);
+  document.body.appendChild(svg);
+}
+
+// convObjToSvg(coolorscoObjStr);
+convObjToSvg2(coolorscoObjStr);
