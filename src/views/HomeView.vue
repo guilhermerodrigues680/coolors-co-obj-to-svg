@@ -11,10 +11,16 @@
         spellcheck="false"
       ></textarea>
     </label>
+
+    <input type="range" v-model.number="colorsPerRow" min="1" max="10" />
+
     <textarea ref="textareaSvg" :value="colorPaleteSvg" readonly></textarea>
+
     <button ref="btnCopyToClipboard">Copiar para área de transferência</button>
     <button @click="handleDownloadSvg()">Baixar SVG</button>
     <div v-html="colorPaleteSvg"></div>
+
+    <!-- TODO: Selecionar formato da imagem, qualidade e mostrar tamanho final -->
     <canvas ref="canvas"></canvas>
     <button @click="handleDownloadCanvasImg">Baixa Imagem</button>
     <button @click="handleOpenCanvasImg">Ver Imagem</button>
@@ -51,6 +57,7 @@ export default {
     colorPaleteSvg: "",
     /** @type {Canvg} */
     canvgInstance: null,
+    colorsPerRow: 3,
   }),
 
   computed: {
@@ -66,9 +73,11 @@ export default {
 
   watch: {
     colorJson() {
-      if (this.colorJsonValid) {
-        this.colorJsonToSvg(this.colorJson);
-      }
+      this.colorJsonToSvg();
+    },
+
+    colorsPerRow() {
+      this.colorJsonToSvg();
     },
   },
 
@@ -103,15 +112,24 @@ export default {
   },
 
   methods: {
-    colorJsonToSvg(json) {
-      const svgEl = convObjToSvg2(json);
+    colorJsonToSvg() {
+      if (!this.colorJsonValid) {
+        return;
+      }
+
+      const svgEl = convObjToSvg2(this.colorJson, this.colorsPerRow);
       this.colorPaleteSvg = svgEl.outerHTML;
-      const svgDimensions = {
-        width: +svgEl.getAttribute("width"),
-        height: +svgEl.getAttribute("height"),
-      };
-      svgEl.setAttribute("width", svgDimensions.width * 4);
-      svgEl.setAttribute("height", svgDimensions.height * 4);
+      // --- Redimensiona Imagem
+      // const svgDimensions = {
+      //   width: +svgEl.getAttribute("width"),
+      //   height: +svgEl.getAttribute("height"),
+      // };
+      // svgEl.setAttribute("width", svgDimensions.width * 4);
+      // svgEl.setAttribute("height", svgDimensions.height * 4);
+      // --- FIM Redimensiona Imagem
+
+      // --- BG
+      // --- FIM BG
 
       // chart_svg = chart_svg.replace('width="600"', 'width="1280"');
       // chart_svg = chart_svg.replace('height="400"', 'height="860"');
@@ -131,8 +149,15 @@ export default {
         // ignoreDimensions: true,
         // scaleWidth: 200,
         // scaleHeight: 200,
+        ignoreMouse: true,
       });
       canvgInstance.start(); // Start SVG rendering with animations and mouse handling.
+
+      // https://stackoverflow.com/questions/36522927/how-to-get-background-color-of-svg-converted-properly-into-canvas
+      ctx.globalCompositeOperation = "destination-over";
+      // ctx.fillStyle = "#FF00FF";
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     },
 
     handleDownloadSvg() {

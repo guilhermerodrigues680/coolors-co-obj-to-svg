@@ -74,7 +74,7 @@ let v;
 //   document.body.appendChild(svg);
 // }
 
-function convObjToSvg2(objStr) {
+function convObjToSvg2(objStr, circlesPerRow = 3) {
   const coolorscoObj = JSON.parse(objStr);
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -93,7 +93,7 @@ function convObjToSvg2(objStr) {
     currentX: 0,
     currentY: 0,
   };
-  const circlesPerRow = 3;
+  // const circlesPerRow = 3;
   const margin = {
     x: 48,
     y: 16,
