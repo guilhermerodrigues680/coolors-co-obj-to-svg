@@ -24,6 +24,8 @@
     <canvas ref="canvas"></canvas>
     <button @click="handleDownloadCanvasImg">Baixa Imagem</button>
     <button @click="handleOpenCanvasImg">Ver Imagem</button>
+
+    <button @click="handleOpenPdf">Ver PDF</button>
   </div>
 </template>
 
@@ -33,6 +35,11 @@ import Swal from "sweetalert2";
 import { convObjToSvg2 } from "@/modules/obj-to-svg-palette/helpers/obj-to-svg-palette";
 import { saveAs } from "file-saver";
 import { Canvg } from "canvg";
+import pdfMake from "pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+// https://stackoverflow.com/questions/46856550/pdfmake-roboto-regular-ttf-not-found-in-virtual-file-system-only-after-gulp
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const exampleJson = `{
   "Old Mauve": "6a294d",
@@ -58,6 +65,7 @@ export default {
     /** @type {Canvg} */
     canvgInstance: null,
     colorsPerRow: 3,
+    pdfDocDefinition: Object.freeze({ docDefinition: null }),
   }),
 
   computed: {
@@ -158,6 +166,37 @@ export default {
       // ctx.fillStyle = "#FF00FF";
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // PDF
+      const docDefinition = {
+        info: {
+          title: "Color Palette",
+          author: "colors to color palette",
+          subject: "color palette",
+          creator: "colors-to-color-palette WebApp",
+        },
+        pageSize: {
+          width: canvas.width,
+          height: "auto",
+        },
+        // [left, top, right, bottom] or [horizontal, vertical] or just a number for equal margins
+        pageMargins: [0, 0, 0, 0],
+        content: [
+          "SVG nodes behave similar to images by supporting width/height or fit",
+          "It is however not yet possible to use svg files or to have a library of svgs in the document definition",
+          "\n",
+          "Note that before you can use SVG nodes you must install svg-to-pdfkit as it is not included with pdfmake to keep bundle size down",
+          "You can also fit the svg inside a rectangle",
+          {
+            svg: svgEl.outerHTML,
+            // fit: [100, 100],
+          },
+        ],
+      };
+
+      // Object.freeze no objeto superior, o interno não foi congelado
+      // é importante para o vue não ficar monitorando o objeto
+      this.pdfDocDefinition = Object.freeze({ docDefinition });
     },
 
     handleDownloadSvg() {
@@ -187,6 +226,11 @@ export default {
       canvas.toBlob((blob) => {
         window.open(URL.createObjectURL(blob), "_blank");
       }); // image/png, image/jpg (0 a 1)
+    },
+
+    handleOpenPdf() {
+      const pdfDoc = pdfMake.createPdf(this.pdfDocDefinition.docDefinition);
+      pdfDoc.getBlob((blob) => window.open(URL.createObjectURL(blob), "_blank"));
     },
   },
 };
