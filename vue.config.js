@@ -3,7 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
 
   // lintOnSave: true,
-  // publicPath: "/sub/dir/",
+  publicPath: "/coolors-co-obj-to-svg/",
 
   chainWebpack: (config) => {
     // vue inspect --plugin html
