@@ -104,14 +104,34 @@ export default {
 
   methods: {
     colorJsonToSvg(json) {
-      this.colorPaleteSvg = convObjToSvg2(json).outerHTML;
+      const svgEl = convObjToSvg2(json);
+      this.colorPaleteSvg = svgEl.outerHTML;
+      const svgDimensions = {
+        width: +svgEl.getAttribute("width"),
+        height: +svgEl.getAttribute("height"),
+      };
+      svgEl.setAttribute("width", svgDimensions.width * 4);
+      svgEl.setAttribute("height", svgDimensions.height * 4);
+
+      // chart_svg = chart_svg.replace('width="600"', 'width="1280"');
+      // chart_svg = chart_svg.replace('height="400"', 'height="860"');
+      // var dWidth = 1280/600, dHeight = 860/400;
+      // chart_svg = chart_svg.replace('<svg ', '<svg transform="scale(' + dWidth + ' ' + dHeight + ')" ');
 
       /** @type {{canvas: HTMLCanvasElement}} */
       const { canvas } = this.$refs;
+      // canvas.width = svgDimensions.width * 4;
+      // canvas.height = svgDimensions.height * 4;
+      // console.debug(canvas.width, canvas.height, svgDimensions.width, svgDimensions.height);
       const ctx = canvas.getContext("2d");
 
       this.canvgInstance?.stop();
-      const canvgInstance = Canvg.fromString(ctx, this.colorPaleteSvg);
+      // const canvgInstance = Canvg.fromString(ctx, this.colorPaleteSvg, {
+      const canvgInstance = Canvg.fromString(ctx, svgEl.outerHTML, {
+        // ignoreDimensions: true,
+        // scaleWidth: 200,
+        // scaleHeight: 200,
+      });
       canvgInstance.start(); // Start SVG rendering with animations and mouse handling.
     },
 
